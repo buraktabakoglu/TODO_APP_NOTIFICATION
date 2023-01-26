@@ -1,4 +1,4 @@
-module github.com/buraktabakoglu/TODO_APP_NOTIFICATION.git
+module github.com/buraktabakoglu/TODO_APP_NOTIFICATION
 
 go 1.18
 

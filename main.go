@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	"github.com/buraktabakoglu/TODO_APP_NOTIFICATION.git/internal/Kafka"
+	"github.com/buraktabakoglu/TODO_APP_NOTIFICATION/internal/kafka"
 
 	"github.com/joho/godotenv"
 )
@@ -18,7 +18,6 @@ func init() {
 }
 
 func main() {
-	Kafka.Consume(context.Background())
-	Kafka.ConsumePassword(context.Background())
+	internal.Consume(context.Background())
 
 }
