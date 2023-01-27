@@ -12,7 +12,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-//birleştir
+// consume update
 
 func Consume(ctx context.Context) {
 	r := kafka.NewReader(kafka.ReaderConfig{
