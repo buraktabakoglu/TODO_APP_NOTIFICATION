@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func SendEmail(message string, toAddress string, activationLink string) (response bool, err error) {
+func SendEmail(message string, toAddress string, activationLink string) error {
 	fromAddress := os.Getenv("EMAIL")
 	fromEmailPassword := os.Getenv("PASSWORD")
 	smtpServer := os.Getenv("SMTP_SERVER")
@@ -19,10 +19,10 @@ func SendEmail(message string, toAddress string, activationLink string) (respons
 		body
 
 	var auth = smtp.PlainAuth("", fromAddress, fromEmailPassword, smtpServer)
-	err = smtp.SendMail(smtpServer+":"+smptPort, auth, fromAddress, []string{toAddress}, []byte(msg))
-	if err == nil {
-		return true, nil
-	}
+	err := smtp.SendMail(smtpServer+":"+smptPort, auth, fromAddress, []string{toAddress}, []byte(msg))
+	if err != nil {
+        return err
+    }
 
-	return false, err
+    return nil
 }

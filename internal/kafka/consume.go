@@ -10,11 +10,14 @@ import (
 	internal "github.com/buraktabakoglu/TODO_APP_NOTIFICATION/internal/controller"
 	"github.com/buraktabakoglu/TODO_APP_NOTIFICATION/pkg/models"
 	"github.com/segmentio/kafka-go"
+	"go.uber.org/zap"
 )
 
 // consume update
 
 func Consume(ctx context.Context) {
+	logger, _ := zap.NewProduction()
+
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:     []string{os.Getenv("KAFKA_BROKER")},
 		Topic:       "email-topic",
@@ -29,7 +32,7 @@ func Consume(ctx context.Context) {
 		default:
 			msg, err := r.ReadMessage(ctx)
 			if err != nil {
-				fmt.Println("could not read message " + err.Error())
+				logger.Error("could not read message", zap.Error(err))
 				continue
 			}
 			data := msg.Value
@@ -40,28 +43,39 @@ func Consume(ctx context.Context) {
 				var user models.User
 				err = json.Unmarshal(data, &user)
 				if err != nil {
-					fmt.Println("could not parse userData " + err.Error())
+					logger.Error("could not parse userData", zap.Error(err))
 					continue
 				}
 				token := user.Token
-				activationLink := fmt.Sprintf("http://localhost:8080/api/activate/%s", token)
+				activationEndpoint := os.Getenv("ACTIVATION_LINK")
+				activationLink := activationEndpoint + token
 				body := fmt.Sprintf("Your account is now active and your ID is %d. Congrats!", user.ID)
 				message := strings.Join([]string{body}, " ")
 				go internal.SendEmail(message, user.Email, activationLink)
+				err := internal.SendEmail(message, user.Email, activationLink)
+				if err != nil {
+					logger.Error("could not send email", zap.Error(err))
+					continue
+				}
+
 			} else if topic == topics[1] {
 				var resetPassword models.ResetPassword
 				err = json.Unmarshal(data, &resetPassword)
 				if err != nil {
-					fmt.Println("could not parse reset password data " + err.Error())
+					logger.Error("could not parse reset password data", zap.Error(err))
 					continue
 				}
 				token := resetPassword.Token
 				email := resetPassword.Email
-
-				passwordResetLink := fmt.Sprintf("http://localhost:8080/api/password/reset/%s", token)
+				resetEndpoint := os.Getenv("RESET_LINK")
+				passwordResetLink := resetEndpoint + token
 				body := fmt.Sprintf("Please click the following link to reset your password: %s", passwordResetLink)
 				message := strings.Join([]string{body}, " ")
 				go internal.SendEmail(message, email, "Password reset")
+				err := internal.SendEmail(message, resetPassword.Email, passwordResetLink)
+				if err != nil {
+					logger.Error("could not send email", zap.Error(err))
+				}
 			}
 		}
 	}
