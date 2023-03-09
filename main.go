@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	"github.com/buraktabakoglu/TODO_APP_NOTIFICATION/internal/kafka"
+	internal "github.com/buraktabakoglu/TODO_APP_NOTIFICATION/internal/kafka"
 
 	"github.com/joho/godotenv"
 )

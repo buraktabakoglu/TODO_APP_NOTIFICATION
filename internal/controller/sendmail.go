@@ -1,4 +1,4 @@
-package internal
+package controller
 
 import (
 	"fmt"
@@ -21,8 +21,8 @@ func SendEmail(message string, toAddress string, activationLink string) error {
 	var auth = smtp.PlainAuth("", fromAddress, fromEmailPassword, smtpServer)
 	err := smtp.SendMail(smtpServer+":"+smptPort, auth, fromAddress, []string{toAddress}, []byte(msg))
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
-    return nil
+	return nil
 }
